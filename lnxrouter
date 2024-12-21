@@ -124,6 +124,9 @@ Options:
     --vht-seg1-ch <channel> Channel index of VHT center frequency for secondary
                             (second 80MHz) segment. Use with '--vht-ch-width 3'
 
+    WiFi 6 (802.11ax) configs:
+    --wifi6                 Enable IEEE 802.11ax
+
   Instance managing:
     --daemon                Run in background
     -l, --list-running      Show running instances
@@ -202,6 +205,7 @@ define_global_variables(){
     VHTCHANNELWIDTH=0
     VHTSEG0CHINDEX=0
     VHTSEG1CHINDEX=0
+    IEEE80211AX=0
     DRIVER=nl80211
     NO_VIRT=0 # not use virtual interface
     COUNTRY=
@@ -442,6 +446,10 @@ parse_user_options(){
                 shift
                 VHTSEG1CHINDEX="$1"
                 shift
+                ;;
+                --wifi6|--ieee80211ax)
+                shift
+                IEEE80211AX=1
                 ;;
             --driver)
                 shift
@@ -1951,6 +1959,10 @@ write_hostapd_conf() {
 			vht_oper_centr_freq_seg1_idx=${VHTSEG1CHINDEX}
 		EOF
 	fi
+
+    if [[ $IEEE80211AX -eq 1 ]]; then
+        echo "ieee80211ax=1" >> "$CONFDIR/hostapd.conf"
+    fi
 
     if [[ $IEEE80211N -eq 1 ]] || [[ $IEEE80211AC -eq 1 ]]; then
         echo "wmm_enabled=1" >> "$CONFDIR/hostapd.conf"
